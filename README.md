@@ -1,4 +1,4 @@
-# Markdown Viewer
+# Preview Markdown with Remarkable
 
 This [Sublime Text 3](http://sublimetext.com/) plugin requires [Remarkable, The best markdown editor for Linux and Windows](https://remarkableapp.github.io/) as SublimeText has no proper support for Markdown.
 
