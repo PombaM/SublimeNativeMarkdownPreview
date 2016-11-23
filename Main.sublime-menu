@@ -1,0 +1,11 @@
+[
+	{
+	    "id": "edit",
+	    "children": [
+		    {
+		        "caption": "Preview with Remarkable",
+		        "command": "preview_markdown_with_remarkable"
+		    }
+	    ]
+	}
+]
