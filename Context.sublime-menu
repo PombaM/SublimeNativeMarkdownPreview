@@ -1,6 +1,5 @@
 [
     {
-        "caption": "Preview with Remarkable",
-        "command": "preview_markdown_with_remarkable"
+        "command": "native_markdown_preview"
     }
 ]

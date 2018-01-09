@@ -1,60 +1,58 @@
 '''
-This plugin requires Remarkable (https://remarkableapp.github.io/) to work.
-This plugin aims to provide a quicker way to view/edit markdown files using Remarkable.
+Preview your markdown files with the default app installed in your system.
 '''
 
+import os
 import sublime
 import sublime_plugin
 import subprocess
-import webbrowser
+import sys
 
 
-class PreviewMarkdownWithRemarkableCommand(sublime_plugin.TextCommand):
-
-    '''
-        Checks - if Remarkable is installed
-               - if current file's a markdown file
-    '''
-    def run_checks(self, scope):
-        # POSIX way to check if a program is installed
-        parameter = 'command -v remarkable'
-        # This will return 0 if Remarkable is installed
-        has_remarkable = subprocess.call(parameter, shell=True)
-
-        if has_remarkable is 0 and 'markdown' in scope:
-            self.open_file()
+class NativeMarkdownPreview(sublime_plugin.TextCommand):
+    # returns true only if the current file is a markdown file
+    def can_procceed(self):
+        if 'markdown' in self.get_scope():
             return True
-
-        if has_remarkable is not 0:
-            self.offer_install('Remarkable is not installed, do you want to install it?')
-            return False
-
-        if 'markdown' not in scope:
-            self.notify_user('The file you are trying to open is not a markdown file.')
-            return False
-
-    def notify_user(self, msg):
-        self.view.set_status('OWR_STATUS', msg)
-        sublime.message_dialog(msg)
-        sublime.set_timeout(self.clear_status_bar, 7000)
-
-    def clear_status_bar(self):
-        self.view.erase_status('OWR_STATUS')
-
-    def offer_install(self, msg):
-        additional_help = '\n\n(Clicking OK will open Remarkable\'s homepage in your default webbrowser)'
-        confirm_install = sublime.ok_cancel_dialog(msg + additional_help)
-
-        if confirm_install:
-            webbrowser.open_new_tab(url='https://remarkableapp.github.io/')
         else:
-            sublime.message_dialog('This plugin won\'t work without Remarkable.')
+            return False
 
-    # call remarkable
+    # get filetype aka scope
+    def get_scope(self):
+        return self.view.scope_name(self.view.sel()[0].begin())
+
+    def try_open(self, command=lambda: command):
+        try:
+            command()
+        except Exception as e:
+            sublime.error_message(e)
+
     def open_file(self):
-        subprocess.Popen(['remarkable', self.view.file_name()])
+        platform = sys.platform
+        file = self.view.file_name()
+
+        if platform.startswith('linux'):
+            cmd = 'xdg-open {}'.format(file)
+            self.try_open(subprocess.call(cmd, shell=True))
+
+        elif platform.startswith('darwin'):
+            cmd = 'open {}'.format(file)
+            self.try_open(subprocess.call(cmd, shell=True))
+
+        elif platform.startswith('win32') or platform.startswith('cygwin'):
+            try_open(os.startfile(file))
+
+        else:
+            sublime.message_dialog('Unsupported OS')
+
+    # decide when to show the plugin's contextual menue
+    def is_visible(self):
+        return self.can_procceed()
+
+    # adds captions to context menu
+    def description(self):
+        if self.can_procceed():
+            return 'Preview markdown'
 
     def run(self, edit):
-        # get file's scope
-        scope = self.view.scope_name(self.view.sel()[0].begin())
-        self.run_checks(scope)
+        self.open_file()

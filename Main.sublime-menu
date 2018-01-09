@@ -1,10 +1,10 @@
 [
 	{
-	    "id": "edit",
+	    "id": "view",
 	    "children": [
 		    {
-		        "caption": "Preview with Remarkable",
-		        "command": "preview_markdown_with_remarkable"
+		        "caption": "Preview markdown",
+		        "command": "native_markdown_preview"
 		    }
 	    ]
 	}
